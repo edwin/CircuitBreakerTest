@@ -1,6 +1,7 @@
 package id.mapan.circuitbreakertest.controller;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -23,8 +24,17 @@ public class MainController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     
-    @HystrixCommand(fallbackMethod = "failing")
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @HystrixCommand(
+            fallbackMethod = "failing", 
+            threadPoolKey = "pool1",
+            threadPoolProperties = {
+                @HystrixProperty(name = "coreSize", value = "1"),
+                @HystrixProperty(name = "maxQueueSize", value = "5")
+        })
+    @RequestMapping(
+            value = "/", 
+            method = RequestMethod.GET
+    )
     public Map index(@RequestParam String url) throws Exception {
         
         logger.info(">>>>> firing to {}", url);
